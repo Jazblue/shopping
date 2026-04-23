@@ -1,300 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weekly Supermarket Basket Tracker</title>
-  <meta name="description" content="Weekly tracker for a 40-item common brands basket with current, lowest seen and highest seen prices." />
-  <style>
-    :root {
-      --bg: #0b1220;
-      --panel: #121b2f;
-      --panel-2: #18233d;
-      --line: rgba(255,255,255,0.10);
-      --text: #edf3ff;
-      --muted: #a6b4d6;
-      --brand: #74a2ff;
-      --good: #7ee2a8;
-      --warn: #ffd166;
-      --bad: #ff8a8a;
-      --max: 1180px;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, Arial, sans-serif;
-      background: linear-gradient(180deg, #0b1220 0%, #101a31 100%);
-      color: var(--text);
-    }
-    .wrap { width: min(var(--max), calc(100% - 28px)); margin: 0 auto; }
-    .hero { padding: 44px 0 18px; }
-    .hero-card, .card {
-      background: rgba(18,27,47,0.92);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 22px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
-    }
-    h1 { margin: 0 0 10px; font-size: clamp(2rem, 5vw, 3.6rem); letter-spacing: -0.03em; }
-    p { line-height: 1.6; }
-    .muted { color: var(--muted); }
-    .grid { display: grid; gap: 16px; }
-    .stats { grid-template-columns: repeat(4, 1fr); margin-top: 18px; }
-    .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
-    .stat-label { color: var(--muted); font-size: 0.86rem; margin-bottom: 8px; }
-    .stat-value { font-size: 1.6rem; font-weight: 800; }
-    .toolbar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin: 22px 0 14px; }
-    input, select {
-      background: #0d1528; color: var(--text); border: 1px solid var(--line); border-radius: 12px;
-      padding: 12px 14px; font: inherit;
-    }
-    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-    th, td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; vertical-align: top; }
-    th { color: #dce6ff; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em; }
-    tbody tr:hover { background: rgba(255,255,255,0.03); }
-    .pill { display:inline-block; padding:5px 9px; border-radius:999px; font-size:0.78rem; font-weight:700; }
-    .pill-good { background: rgba(126,226,168,0.12); color: var(--good); }
-    .pill-warn { background: rgba(255,209,102,0.12); color: var(--warn); }
-    .footer { padding: 22px 0 40px; }
-    .small { font-size: 0.88rem; }
-    @media (max-width: 920px) {
-      .stats { grid-template-columns: repeat(2, 1fr); }
-      table { display:block; overflow:auto; }
-    }
-    @media (max-width: 560px) {
-      .stats { grid-template-columns: 1fr; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASDA 100 Price Tracker</title>
+  <meta name="description" content="Track weekly ASDA grocery price movement across 100 everyday products with current price, highs, lows, and weekly changes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <div class="hero-card">
-        <div class="muted small">Weekly basket tracker</div>
-        <h1>40-item supermarket basket tracker</h1>
-        <p class="muted">Tracks current price, lowest seen, highest seen, last checked date, and source status for a common branded basket. Built for weekly updates and GitHub Pages publishing.</p>
-        <div class="grid stats">
-          <div class="stat"><div class="stat-label">Items in basket</div><div class="stat-value" id="stat-items">—</div></div>
-          <div class="stat"><div class="stat-label">Items with price</div><div class="stat-value" id="stat-priced">—</div></div>
-          <div class="stat"><div class="stat-label">Current basket total</div><div class="stat-value" id="stat-total">—</div></div>
-          <div class="stat"><div class="stat-label">Last checked</div><div class="stat-value" id="stat-date">—</div></div>
+  <header class="hero">
+    <div class="wrap hero__inner">
+      <div class="hero__copy">
+        <div class="eyebrow">Weekly grocery pulse • Mondays</div>
+        <h1>ASDA 100 Price Tracker</h1>
+        <p class="lede">A clear weekly snapshot of 100 everyday grocery lines — showing today’s price, the recent high and low, and what changed since last Monday.</p>
+        <div class="hero__actions">
+          <a href="#tracker" class="button button--primary">View this week’s prices</a>
+          <a href="#about" class="button button--ghost">How it works</a>
+        </div>
+        <p class="microcopy">Consumer-facing concept site built for a simple Monday update rhythm.</p>
+      </div>
+      <aside class="hero__panel card">
+        <div class="panel__label">This week at a glance</div>
+        <div class="metric-grid" id="summary-metrics">
+          <div>
+            <span class="metric-label">Products tracked</span>
+            <strong id="metric-products">100</strong>
+          </div>
+          <div>
+            <span class="metric-label">Price drops</span>
+            <strong id="metric-drops">—</strong>
+          </div>
+          <div>
+            <span class="metric-label">Price rises</span>
+            <strong id="metric-rises">—</strong>
+          </div>
+          <div>
+            <span class="metric-label">Updated</span>
+            <strong id="metric-updated">—</strong>
+          </div>
+        </div>
+        <div class="panel__footer">
+          <span class="dot"></span>
+          Next refresh expected every Monday morning.
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <main>
+    <section class="wrap strip">
+      <div class="strip__item card">
+        <h2>Built for everyday shoppers</h2>
+        <p>Fast to scan, easy to trust, and focused on the products people buy most often.</p>
+      </div>
+      <div class="strip__item card">
+        <h2>Useful signals, not clutter</h2>
+        <p>Current price, 52-week high/low range, and the week-on-week move for each line.</p>
+      </div>
+      <div class="strip__item card">
+        <h2>Commercially sensible</h2>
+        <p>Clean structure for GitHub Pages today, with room for sponsorships, affiliate content, or data upgrades later.</p>
+      </div>
+    </section>
+
+    <section class="wrap tracker" id="tracker">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Current board</div>
+          <h2>100 tracked products</h2>
+        </div>
+        <p id="update-note" class="section-note">Loading latest Monday update…</p>
+      </div>
+
+      <div class="controls card">
+        <label class="search-field">
+          <span>Search products</span>
+          <input type="search" id="searchInput" placeholder="Try milk, pasta, apples, toilet roll…">
+        </label>
+        <label class="filter-field">
+          <span>Category</span>
+          <select id="categoryFilter">
+            <option value="all">All categories</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="table-shell card">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Current</th>
+              <th>Weekly change</th>
+              <th>52w low</th>
+              <th>52w high</th>
+            </tr>
+          </thead>
+          <tbody id="productRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="wrap about" id="about">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Method</div>
+          <h2>Simple by design</h2>
         </div>
       </div>
-    </section>
-
-    <section class="card">
-      <div class="toolbar">
-        <input id="search" type="search" placeholder="Search product or brand" />
-        <select id="categoryFilter">
-          <option value="">All categories</option>
-        </select>
+      <div class="about-grid">
+        <article class="card">
+          <h3>What shoppers see</h3>
+          <p>A stable list of core grocery items with straightforward pricing context.</p>
+        </article>
+        <article class="card">
+          <h3>What updates weekly</h3>
+          <p>Every Monday, the current price and week-on-week movement can be refreshed from a source feed or manual capture process.</p>
+        </article>
+        <article class="card">
+          <h3>What can scale later</h3>
+          <p>Email alerts, retailer comparisons, price history pages, category pages, and sponsored placements.</p>
+        </article>
       </div>
-      <div id="statusMessage" class="muted small" style="margin-bottom:12px;"></div>
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Brand</th>
-            <th>Size</th>
-            <th>Category</th>
-            <th>Current</th>
-            <th>Lowest seen</th>
-            <th>Highest seen</th>
-            <th>Checked</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
+      <p class="footnote" id="disclaimer"></p>
     </section>
+  </main>
 
-    <section class="footer muted small">
-      <p><strong>Note:</strong> source labels must stay accurate. If direct Asda confirmation is unavailable, entries should remain labelled as alternate-source market matches rather than official Asda prices.</p>
-    </section>
-  </div>
+  <footer class="footer wrap">
+    <p>Concept site • Static HTML/CSS/JS • Suitable for GitHub Pages deployment</p>
+  </footer>
 
-  <script>
-    const currency = value => {
-      const n = Number(String(value || '').replace(/[^0-9.-]/g, ''));
-      return Number.isFinite(n) && String(value || '').trim() !== '' ? `£${n.toFixed(2)}` : '—';
-    };
-    let allRows = [];
-
-    function setStatus(message, isError = false) {
-      const el = document.getElementById('statusMessage');
-      el.textContent = message || '';
-      el.style.color = isError ? 'var(--bad)' : 'var(--muted)';
-    }
-
-    function render(rows) {
-      const tbody = document.getElementById('rows');
-      tbody.innerHTML = rows.map(row => {
-        const status = (row['Source / status'] || '').toLowerCase().includes('not direct')
-          ? '<span class="pill pill-warn">Alt source</span>'
-          : '<span class="pill pill-good">Direct/verified</span>';
-        return `
-          <tr>
-            <td>${row['Product name'] || ''}</td>
-            <td>${row['Brand'] || ''}</td>
-            <td>${row['Pack size'] || ''}</td>
-            <td>${row['Category'] || ''}</td>
-            <td>${currency(row['Asda current price'])}</td>
-            <td>${currency(row['Asda low price'])}</td>
-            <td>${currency(row['Asda high price'])}</td>
-            <td>${row['Price checked date'] || '—'}</td>
-            <td>${status}</td>
-          </tr>`;
-      }).join('');
-    }
-
-    function refreshFilters() {
-      const search = document.getElementById('search').value.toLowerCase().trim();
-      const cat = document.getElementById('categoryFilter').value;
-      const filtered = allRows.filter(r => {
-        const hay = `${r['Product name'] || ''} ${r['Brand'] || ''}`.toLowerCase();
-        return (!search || hay.includes(search)) && (!cat || r['Category'] === cat);
-      });
-      render(filtered);
-    }
-
-    function setStats(rows) {
-      const priced = rows.filter(r => r['Asda current price']);
-      const total = priced.reduce((sum, r) => sum + Number(r['Asda current price'] || 0), 0);
-      const lastDate = rows.map(r => r['Price checked date']).filter(Boolean).sort().slice(-1)[0] || '—';
-      document.getElementById('stat-items').textContent = rows.length;
-      document.getElementById('stat-priced').textContent = priced.length;
-      document.getElementById('stat-total').textContent = currency(total);
-      document.getElementById('stat-date').textContent = lastDate;
-    }
-
-    function parseCSV(text) {
-      const rows = [];
-      let row = [];
-      let cell = '';
-      let inQuotes = false;
-
-      for (let i = 0; i < text.length; i++) {
-        const ch = text[i];
-        const next = text[i + 1];
-
-        if (ch === '"') {
-          if (inQuotes && next === '"') {
-            cell += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (ch === ',' && !inQuotes) {
-          row.push(cell);
-          cell = '';
-        } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
-          if (ch === '\r' && next === '\n') i++;
-          row.push(cell);
-          if (row.some(value => value !== '')) rows.push(row);
-          row = [];
-          cell = '';
-        } else {
-          cell += ch;
-        }
-      }
-
-      if (cell !== '' || row.length) {
-        row.push(cell);
-        if (row.some(value => value !== '')) rows.push(row);
-      }
-
-      if (!rows.length) return [];
-      const headers = rows[0].map(h => h.trim());
-      return rows.slice(1).map(values => {
-        const obj = {};
-        headers.forEach((h, i) => obj[h] = (values[i] || '').trim());
-        return obj;
-      });
-    }
-
-    function applyData(rows, message) {
-      allRows = rows;
-      setStats(allRows);
-      render(allRows);
-      const cats = [...new Set(allRows.map(r => r['Category']).filter(Boolean))].sort();
-      const sel = document.getElementById('categoryFilter');
-      sel.innerHTML = '<option value="">All categories</option>';
-      cats.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.textContent = cat;
-        sel.appendChild(opt);
-      });
-      setStatus(message || `Loaded ${allRows.length} products.`);
-    }
-
-    const embeddedCsv = `Product name,Brand,Pack size,Category,Asda current price,Asda low price,Asda high price,Price checked date,Notes,Source / status
-Heinz Baked Beans,Heinz,415g,Cupboard,1.00,1.00,1.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Heinz Tomato Ketchup,Heinz,460g,Condiments,2.50,2.50,2.50,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Hellmann's Mayonnaise,Hellmann's,400g,Condiments,2.25,2.25,2.25,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Warburtons Medium Sliced Bread,Warburtons,800g,Bakery,1.40,1.40,1.40,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Hovis Soft White Bread,Hovis,800g,Bakery,1.39,1.39,1.39,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Kingsmill 50/50 Bread,Kingsmill,800g,Bakery,1.23,1.23,1.23,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Weetabix Cereal,Weetabix,430g,Breakfast,,,,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Kellogg's Corn Flakes,Kellogg's,450g,Breakfast,2.00,2.00,2.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Quaker Oats,Quaker,1kg,Breakfast,2.75,2.75,2.75,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-McVitie's Digestives,McVitie's,400g,Biscuits,3.00,3.00,3.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-McVitie's Hobnobs,McVitie's,255g,Biscuits,1.29,1.29,1.29,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Walkers Ready Salted Crisps,Walkers,6 pack,Snacks,,,,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Doritos Chilli Heatwave,Doritos,180g,Snacks,1.75,1.75,1.75,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Coca-Cola Original Taste,Coca-Cola,2L,Drinks,2.15,2.15,2.15,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Pepsi Max,Pepsi,2L,Drinks,1.50,1.50,1.50,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Robinsons Orange Squash,Robinsons,1L,Drinks,1.80,1.80,1.80,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Tetley Tea Bags,Tetley,80 pack,Drinks,,,,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Nescafe Gold Blend,Nescafe,200g,Hot Drinks,5.99,5.99,5.99,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-PG Tips Tea Bags,PG Tips,80 pack,Hot Drinks,2.49,2.49,2.49,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Lurpak Slightly Salted Butter,Lurpak,250g,Dairy,2.40,2.40,2.40,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Anchor Butter,Anchor,250g,Dairy,3.00,3.00,3.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Cathedral City Mature Cheddar,Cathedral City,350g,Dairy,2.99,2.99,2.99,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Philadelphia Original Soft Cheese,Philadelphia,165g,Dairy,1.00,1.00,1.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Muller Corner Yogurt,Muller,124g,Dairy,2.00,2.00,2.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Danone Activia Yogurt,Activia,4 pack,Dairy,,,,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Yeo Valley Natural Yogurt,Yeo Valley,450g,Dairy,2.00,2.00,2.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Cravendale Semi Skimmed Milk,Cravendale,2L,Dairy,2.50,2.50,2.50,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Arla Lactofree Semi Skimmed Milk,Arla,1L,Dairy,1.48,1.48,1.48,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Birds Eye Garden Peas,Birds Eye,375g,Frozen,1.72,1.72,1.72,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Birds Eye Chicken Dippers,Birds Eye,220g,Frozen,2.00,2.00,2.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Birds Eye Potato Waffles,Birds Eye,10 pack,Frozen,3.00,3.00,3.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Ben & Jerry's Chocolate Fudge Brownie,Ben & Jerry's,465ml,Frozen,3.00,3.00,3.00,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Chicago Town Pepperoni Pizza,Chicago Town,2 pack,Frozen,1.55,1.55,1.55,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Dolmio Bolognese Sauce,Dolmio,450g,Cooking Sauces,2.47,2.47,2.47,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Dolmio Lasagne Sauce,Dolmio,470g,Cooking Sauces,,,,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Sharwood's Korma Sauce,Sharwood's,420g,Cooking Sauces,2.65,2.65,2.65,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Patak's Korma Curry Paste,Patak's,283g,Cooking Sauces,3.25,3.25,3.25,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Napolina Chopped Tomatoes,Napolina,400g,Cupboard,0.75,0.75,0.75,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Princes Tuna Chunks in Spring Water,Princes,4x145g,Cupboard,3.76,3.76,3.76,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation
-Branston Original Pickle,Branston,360g,Condiments,1.75,1.75,1.75,2026-04-23,Market-matched via Trolley where available; not direct Asda confirmation,Market-matched via Trolley; not direct Asda confirmation`;
-
-    async function loadData() {
-      setStatus('Loading latest basket data…');
-      try {
-        const response = await fetch('./data/asda-40-common-brands-price-sheet-live-check.csv', { cache: 'no-store' });
-        if (!response.ok) throw new Error(`CSV request failed (${response.status})`);
-        const text = await response.text();
-        const rows = parseCSV(text);
-        if (!rows.length) throw new Error('CSV loaded but no rows were parsed');
-        applyData(rows, `Loaded ${rows.length} products.`);
-      } catch (error) {
-        console.warn('Falling back to embedded basket data.', error);
-        const rows = parseCSV(embeddedCsv);
-        if (rows.length) {
-          applyData(rows, 'Loaded local basket data copy.');
-        } else {
-          console.error(error);
-          setStatus('Could not load the basket data.', true);
-        }
-      }
-    }
-
-    loadData();
-
-    document.getElementById('search').addEventListener('input', refreshFilters);
-    document.getElementById('categoryFilter').addEventListener('change', refreshFilters);
-  </script>
+  <script src="assets/app.js" defer></script>
 </body>
 </html>
