@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Supermarket Basket Tracker</title>
+  <meta name="description" content="Weekly tracker for a 40-item common brands basket with current, lowest seen and highest seen prices." />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121b2f;
+      --panel-2: #18233d;
+      --line: rgba(255,255,255,0.10);
+      --text: #edf3ff;
+      --muted: #a6b4d6;
+      --brand: #74a2ff;
+      --good: #7ee2a8;
+      --warn: #ffd166;
+      --bad: #ff8a8a;
+      --max: 1180px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1220 0%, #101a31 100%);
+      color: var(--text);
+    }
+    .wrap { width: min(var(--max), calc(100% - 28px)); margin: 0 auto; }
+    .hero { padding: 44px 0 18px; }
+    .hero-card, .card {
+      background: rgba(18,27,47,0.92);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+    }
+    h1 { margin: 0 0 10px; font-size: clamp(2rem, 5vw, 3.6rem); letter-spacing: -0.03em; }
+    p { line-height: 1.6; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; gap: 16px; }
+    .stats { grid-template-columns: repeat(4, 1fr); margin-top: 18px; }
+    .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+    .stat-label { color: var(--muted); font-size: 0.86rem; margin-bottom: 8px; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; }
+    .toolbar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin: 22px 0 14px; }
+    input, select {
+      background: #0d1528; color: var(--text); border: 1px solid var(--line); border-radius: 12px;
+      padding: 12px 14px; font: inherit;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; vertical-align: top; }
+    th { color: #dce6ff; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    .pill { display:inline-block; padding:5px 9px; border-radius:999px; font-size:0.78rem; font-weight:700; }
+    .pill-good { background: rgba(126,226,168,0.12); color: var(--good); }
+    .pill-warn { background: rgba(255,209,102,0.12); color: var(--warn); }
+    .footer { padding: 22px 0 40px; }
+    .small { font-size: 0.88rem; }
+    @media (max-width: 920px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      table { display:block; overflow:auto; }
+    }
+    @media (max-width: 560px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="muted small">Weekly basket tracker</div>
+        <h1>40-item supermarket basket tracker</h1>
+        <p class="muted">Tracks current price, lowest seen, highest seen, last checked date, and source status for a common branded basket. Built for weekly updates and GitHub Pages publishing.</p>
+        <div class="grid stats">
+          <div class="stat"><div class="stat-label">Items in basket</div><div class="stat-value" id="stat-items">—</div></div>
+          <div class="stat"><div class="stat-label">Items with price</div><div class="stat-value" id="stat-priced">—</div></div>
+          <div class="stat"><div class="stat-label">Current basket total</div><div class="stat-value" id="stat-total">—</div></div>
+          <div class="stat"><div class="stat-label">Last checked</div><div class="stat-value" id="stat-date">—</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Search product or brand" />
+        <select id="categoryFilter">
+          <option value="">All categories</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Brand</th>
+            <th>Size</th>
+            <th>Category</th>
+            <th>Current</th>
+            <th>Lowest seen</th>
+            <th>Highest seen</th>
+            <th>Checked</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+
+    <section class="footer muted small">
+      <p><strong>Note:</strong> source labels must stay accurate. If direct Asda confirmation is unavailable, entries should remain labelled as alternate-source market matches rather than official Asda prices.</p>
+    </section>
+  </div>
+
+  <script>
+    const currency = value => value ? `£${Number(value).toFixed(2)}` : '—';
+    let allRows = [];
+
+    function render(rows) {
+      const tbody = document.getElementById('rows');
+      tbody.innerHTML = rows.map(row => {
+        const status = (row['Source / status'] || '').toLowerCase().includes('not direct')
+          ? '<span class="pill pill-warn">Alt source</span>'
+          : '<span class="pill pill-good">Direct/verified</span>';
+        return `
+          <tr>
+            <td>${row['Product name'] || ''}</td>
+            <td>${row['Brand'] || ''}</td>
+            <td>${row['Pack size'] || ''}</td>
+            <td>${row['Category'] || ''}</td>
+            <td>${currency(row['Asda current price'])}</td>
+            <td>${currency(row['Asda low price'])}</td>
+            <td>${currency(row['Asda high price'])}</td>
+            <td>${row['Price checked date'] || '—'}</td>
+            <td>${status}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    function refreshFilters() {
+      const search = document.getElementById('search').value.toLowerCase().trim();
+      const cat = document.getElementById('categoryFilter').value;
+      const filtered = allRows.filter(r => {
+        const hay = `${r['Product name'] || ''} ${r['Brand'] || ''}`.toLowerCase();
+        return (!search || hay.includes(search)) && (!cat || r['Category'] === cat);
+      });
+      render(filtered);
+    }
+
+    function setStats(rows) {
+      const priced = rows.filter(r => r['Asda current price']);
+      const total = priced.reduce((sum, r) => sum + Number(r['Asda current price'] || 0), 0);
+      const lastDate = rows.map(r => r['Price checked date']).filter(Boolean).sort().slice(-1)[0] || '—';
+      document.getElementById('stat-items').textContent = rows.length;
+      document.getElementById('stat-priced').textContent = priced.length;
+      document.getElementById('stat-total').textContent = currency(total);
+      document.getElementById('stat-date').textContent = lastDate;
+    }
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      const headers = lines[0].split(',');
+      return lines.slice(1).map(line => {
+        const cells = [];
+        let current = '', inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+            else inQuotes = !inQuotes;
+          } else if (ch === ',' && !inQuotes) {
+            cells.push(current); current = '';
+          } else current += ch;
+        }
+        cells.push(current);
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = cells[i] || '');
+        return obj;
+      });
+    }
+
+    fetch('./data/asda-40-common-brands-price-sheet-live-check.csv')
+      .then(r => r.text())
+      .then(text => {
+        allRows = parseCSV(text);
+        setStats(allRows);
+        render(allRows);
+        const cats = [...new Set(allRows.map(r => r['Category']).filter(Boolean))].sort();
+        const sel = document.getElementById('categoryFilter');
+        cats.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
+        });
+      });
+
+    document.getElementById('search').addEventListener('input', refreshFilters);
+    document.getElementById('categoryFilter').addEventListener('change', refreshFilters);
+  </script>
+</body>
+</html>
