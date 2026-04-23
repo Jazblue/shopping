@@ -157,32 +157,49 @@
       document.getElementById('stat-date').textContent = lastDate;
     }
 
-    function parseCSV(text) {
-      const lines = text.trim().split(/\r?\n/);
-      const headers = lines[0].split(',');
-      return lines.slice(1).map(line => {
-        const cells = [];
-        let current = '', inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-          const ch = line[i];
-          if (ch === '"') {
-            if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
-            else inQuotes = !inQuotes;
-          } else if (ch === ',' && !inQuotes) {
-            cells.push(current); current = '';
-          } else current += ch;
+    function parseCSVLine(line) {
+      const cells = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === ',' && !inQuotes) {
+          cells.push(current);
+          current = '';
+        } else {
+          current += ch;
         }
-        cells.push(current);
+      }
+      cells.push(current);
+      return cells;
+    }
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/).filter(Boolean);
+      if (!lines.length) return [];
+      const headers = parseCSVLine(lines[0]).map(h => h.trim());
+      return lines.slice(1).map(line => {
+        const cells = parseCSVLine(line);
         const obj = {};
-        headers.forEach((h, i) => obj[h] = cells[i] || '');
+        headers.forEach((h, i) => obj[h] = (cells[i] || '').trim());
         return obj;
       });
     }
 
-    fetch('./data/asda-40-common-brands-price-sheet-live-check.csv')
-      .then(r => r.text())
+    fetch('./data/asda-40-common-brands-price-sheet-live-check.csv', { cache: 'no-store' })
+      .then(r => {
+        if (!r.ok) throw new Error(`Failed to load CSV (${r.status})`);
+        return r.text();
+      })
       .then(text => {
-        allRows = parseCSV(text);
+        allRows = parseCSV(text).filter(row => row['Product name']);
         setStats(allRows);
         render(allRows);
         const cats = [...new Set(allRows.map(r => r['Category']).filter(Boolean))].sort();
@@ -191,6 +208,9 @@
           const opt = document.createElement('option');
           opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
         });
+      })
+      .catch(err => {
+        document.getElementById('rows').innerHTML = `<tr><td colspan="9">Could not load product data: ${err.message}</td></tr>`;
       });
 
     document.getElementById('search').addEventListener('input', refreshFilters);
